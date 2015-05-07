@@ -62,7 +62,7 @@ class ctrl extends ctrl_base {
      * 构造方法，做验证相关逻辑实现
      */
     public final function __construct() {
-        $gn = self::get_info()->gongneng;
+        $gn = self::$GongNeng;
         
         //判断后台程序
         if ($gn->ip_pid) {
