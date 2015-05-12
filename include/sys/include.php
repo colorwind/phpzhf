@@ -6,23 +6,14 @@
  * 2011.11.25 09:36:21
  */
 
-
-define('SYSPATH', realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR );
-
-//配置是否debug （可覆盖）
-if(!defined('SYSDEBUG')){
-    $cfg_sysdebug = SYSPATH . 'config/cfg_sysdebug.php';
-    if(file_exists($cfg_sysdebug)){
-        require($cfg_sysdebug);
-    }
-    if(!defined('SYSDEBUG')){
-        define('SYSDEBUG', FALSE);
-    }
-}
-
 //设置框架入口文件（可覆盖）
 if (!defined('SYSMAIN')) {
     define('SYSMAIN', 'i.php');
+}
+
+//配置是否debug （可覆盖）
+if (!defined('SYSDEBUG')) {
+    define('SYSDEBUG', FALSE);
 }
 
 //配置app目录规则是以app开头 例如app_zq2 （可覆盖）
@@ -32,12 +23,25 @@ if (!defined('APP_DIR_NAME')) {
 
 //配置app上传,和log目录,如果不配置目录默认规则，替换开头的app为upload，例如app_zq2替换为upload_zq2（可覆盖）
 if (!defined('UPLOADPATH')) {
-    define('UPLOADPATH', 'upload'.substr(APP_DIR_NAME, 3));
+    define('UPLOADPATH', 'upload' . substr(APP_DIR_NAME, 3));
 }
 
-/**
+//设置httpd，执行用户名
+if (!defined('HTTPDUSER')) {
+    define('HTTPDUSER', "nobody");
+}
+
+
+/*
+ * ********************************
+ * 
  * 系统参数配置完成，开始执行
+ * 
+ * ********************************
  */
+
+//设置系统目录
+define('SYSPATH', realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR);
 
 //系统执行时的参数处理
 if (!$_GET && !$_POST && isset($argv) && $argv[1]) {
@@ -65,11 +69,9 @@ date_default_timezone_set('Asia/Shanghai');
 //设置返回头文件字符集
 header('Content-type: text/html; charset=' . SYSCHARSET);
 
-
 //生产系统相关参数
-define('INCPATH', realpath(SYSPATH . '..')  . DIRECTORY_SEPARATOR);
+define('INCPATH', realpath(SYSPATH . '..') . DIRECTORY_SEPARATOR);
 define('APPPATH', INCPATH . APP_DIR_NAME . DIRECTORY_SEPARATOR);
-
 
 //加载框架基础类
 require SYSPATH . 'class/sys.php';
@@ -88,7 +90,6 @@ require SYSPATH . 'class/log.php';
 require SYSPATH . 'class/mc.php';
 require SYSPATH . 'class/req.php';
 require SYSPATH . 'class/ctrl_base.php';
-
 
 //开始执行
 req::i()->execute();
