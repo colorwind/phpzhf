@@ -1,14 +1,15 @@
 #!/bin/sh
 
-PATH_SOCCER="/usr/ft/gamecenter";
-COMMADN_PHP="/usr/local/fastweb/php_fpm/bin/php";
+#run as : #> autorun.sh a=1000&key=val&key=val&...
 
-cd $PATH_SOCCER;
+PZ_PHP_SRC="/pathto/phpzhf"
+PZ_PHP_CMD="/usr/bin/php"
+PZ_SYSMAIN="g.php"
+
+cd $PZ_PHP_SRC
 
 if [ -n "$1" ];then
-	if [ `echo $1 | awk -F\= '{print $1}'` = "a" ];then
-		$COMMADN_PHP $PATH_SOCCER/i.php $1 $2
-	else
-		echo "参数不正确！";
-	fi
+    $PZ_PHP_CMD -f $PZ_SYSMAIN $1
+else
+    echo "参数不正确！";
 fi
