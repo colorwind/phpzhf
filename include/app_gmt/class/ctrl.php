@@ -69,7 +69,7 @@ class ctrl extends ctrl_base {
             // 后台功能
             $ip = req::clinet_ip();
             $sql = 'select * from ip_dm_xinren where ip_pid=:v1 and ip_dizhi=:v2';
-            if (!SYSDEBUG && $ip != '127.0.0.1' && !db::i()->query($sql, array('v1' => $gn->ip_pid, 'v2' => $ip))) {
+            if ($ip != '127.0.0.1' && !db::i()->query($sql, array('v1' => $gn->ip_pid, 'v2' => $ip))) {
                 throw new Exception("You don't have permission to access {$_SERVER['REQUEST_URI']} on this server.", 403);
             }
         }

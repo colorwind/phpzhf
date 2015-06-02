@@ -198,6 +198,9 @@ abstract class bean {
     public function insert_row() {
         $info = $this->info;
         $p = $this->get_edited();
+		if(!$p[$info['pk_name']]){
+			unset($p[$info['pk_name']]);
+		}
         $id = db::i($info['db_name'])->insert_row($info['table_name'], $p);
         if ($id) {
             //更新时间
