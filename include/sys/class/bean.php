@@ -19,7 +19,6 @@ abstract class bean {
     private $info = null;          //bean的类信息。'class_name'=>类名,'db_name'=>数据库配置名,'table_name'=>表名,'pk_name'=>主键名,'table_info'=>表结构信息
     private $db_data = array();    //数据，与数据库表中的字段相对应
     private $data = array();       //其他相关数据
-    private $is_empty = true;      //标记是否是空实例
     private $err_msg = NULL;       //错误信息，当执行出现错误的时候，这里将储存出错信息
     
     
@@ -29,11 +28,8 @@ abstract class bean {
         }
         $this->err_msg=$m;
     }
-    public function is_empty($b=NULL){
-        if($b===NULL){
-            return $this->is_empty;
-        }
-        $this->is_empty = $b;
+    public function is_empty(){
+        return empty($this->db_data[$this->info['pk_name']]);
     }
     
     public static function get_class_info() {
@@ -80,7 +76,7 @@ abstract class bean {
      */
     public function __construct($pk=NULL) {
         $this->info = self::get_class_info();
-        $this->is_empty(!$this->init($pk));
+        $this->init($pk);
     }
 
     /**
@@ -169,6 +165,9 @@ abstract class bean {
      * @return bean    实例
      */
     public static function i($pk) {
+        if(!$pk){
+            return NULL;
+        }
         $info = self::get_class_info();
         $cname = $info['class_name'];
         $ints = new $cname($pk);
@@ -198,9 +197,9 @@ abstract class bean {
     public function insert_row() {
         $info = $this->info;
         $p = $this->get_edited();
-		if(!$p[$info['pk_name']]){
-			unset($p[$info['pk_name']]);
-		}
+        if(!$p[$info['pk_name']]){
+            unset($p[$info['pk_name']]);
+        }
         $id = db::i($info['db_name'])->insert_row($info['table_name'], $p);
         if ($id) {
             //更新时间
@@ -355,7 +354,7 @@ abstract class bean {
             }
         }
         
-        $rtn['pageinfo'] = (object) $rtn['pageinfo'];
+        //$rtn['pageinfo'] = (object)$rtn['pageinfo'];
         $rtn['data'] = $ret_ins;
         //缓存处理
         if ($iscache && $rtn['data']) {

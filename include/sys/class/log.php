@@ -43,11 +43,11 @@ final class log {
         $msg && ($msg .= ';');
         $ilog = round((microtime(TRUE) - SYS_START_TIME), 3)
                 . ',' . (memory_get_peak_usage() - SYS_START_MEMORY)
-                . ',' . intval(util::arr($db->sql_array, 'count'))
-                . ',' . intval(util::arr($db->sql_array, 'select'))
-                . ',' . intval(util::arr($db->sql_array, 'insert'))
-                . ',' . intval(util::arr($db->sql_array, 'update', 0) + util::arr($db->sql_array, 'replace', 0))
+                . ',' . intval(util::arr($db->sql_array, 'insert', 0) + util::arr($db->sql_array, 'replace', 0))
                 . ',' . intval(util::arr($db->sql_array, 'delete', 0) + util::arr($db->sql_array, 'truncate', 0))
+                . ',' . intval(util::arr($db->sql_array, 'update', 0))
+                . ',' . intval(util::arr($db->sql_array, 'select', 0) + util::arr($db->sql_array,'desc',0)) 
+                . ',' . intval(util::arr($db->sql_array, 'count' , 0))
                 . ',"' . $msg. '"'
         ;
 
@@ -63,10 +63,8 @@ final class log {
             var_dump($msg);
             $msg = ob_get_clean();
         }
-        $a = '';
-        if(SYSDEBUG){
-            $a = util::gen_querystring(array_merge($_GET,$_POST), false);
-        }
+
+        $a = util::gen_querystring(array_merge($_GET,$_POST), false);
         $meth = util::arr($_SERVER, 'REQUEST_METHOD','NULL');
         $msg = $tag.date('ymdHis').",$meth,$msg,\"$a\"\r\n";
         file_put_contents($logf, $msg, FILE_APPEND | LOCK_EX);
