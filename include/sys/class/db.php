@@ -56,7 +56,7 @@ class db {
         try {
             $status = TRUE;
             if (is_resource($this->_connection)) {
-                if (($status = mysql_close($this->_connection))) {
+                if (($status = $this->_connection->close())) {
                     $this->_connection = NULL;
                 }
             }
@@ -76,30 +76,25 @@ class db {
         $username = isset($c['username']) ? $c['username'] : '';
         $password = isset($c['password']) ? $c['password'] : '';
         $charset = isset($c['charset']) ? $c['charset'] : '';
-        try {
-            $this->_connection = mysql_connect($hostname, $username, $password,true);
-        } catch (ErrorException $e) {
-            $this->_connection = NULL;
+        
+        $hostname = explode(':', $hostname);
+        ($port = intval($hostname[1])) || ($port="3306");
+        ($hostname = $hostname[0]) || ($hostname = 'localhost');
+        $this->_connection = new mysqli($hostname, $username, $password, $database, $port);
+        
+        if($this->_connection->connect_error){
+            throw new Exception('Connection error :[' . $this->_connection->connect_errno . '] ' . $this->_connection->connect_error);
         }
-        if(!$this->_connection){
-            throw new Exception('Connection error :[' . mysql_errno() . '] ' . mysql_error());
-        }
-        $this->select_db($database);
+        
         if ($charset) {
             $this->set_charset($charset);
-        }
-    }
-
-    protected function select_db($database) {
-        if (!mysql_select_db($database, $this->_connection)) {
-            throw new Exception('select db error [' . mysql_errno($this->_connection) . '] ' . mysql_error($this->_connection));
         }
     }
 
     public function set_charset($charset) {
         $status = (bool) $this->execute('set names ' . $charset);
         if ($status === FALSE) {
-            throw new Exception('set charset error [' . mysql_errno($this->_connection) . '] ' . mysql_error($this->_connection));
+            throw new Exception('set charset error [' . $this->_connection->errno . '] ' . $this->_connection->error);
         }
     }
 
@@ -284,19 +279,16 @@ class db {
                 case 'select':
                 case 'desc':
                     $data = array();
-                    while ($row = mysql_fetch_array($rs, $result_type)) {
+                    while ($row = $rs->fetch_array($result_type)) {
                         $data[] = $row;
                     }
-                    mysql_free_result($rs);
+                    $rs->free();
                     return $data;
-                    break;
                 case 'insert':
-                    $this->affected_rows = mysql_affected_rows($this->_connection);
-                    return mysql_insert_id($this->_connection);
-                    break;
+                    $this->affected_rows = $this->_connection->affected_rows;
+                    return $this->_connection->insert_id;
                 default :
-                    return mysql_affected_rows($this->_connection);
-                    break;
+                    return ($this->affected_rows = $this->_connection->affected_rows);
             }
         } else {
             throw new Exception('count not execute this query: [' . $sql . '] ');
@@ -315,16 +307,17 @@ class db {
             $this->sql_array[$type]++;
         }
 
-        if (($result = mysql_query($sql, $this->_connection)) === FALSE) {
-            if(!SYSDEBUG){
-                $this->sql_array['err_sql'][] = $sql;
-            }
-            $eno = mysql_errno($this->_connection);
-            $ems = mysql_error($this->_connection);
-            $msg = 'query error [' . $eno . '] ' . $ems . (SYSDEBUG ? "[{$sql}]" : '' );
-            throw new Exception($msg,$eno);
+        if (($result = $this->_connection->query($sql))) {
+            return $result;
         }
-        return $result;
+        
+        if(!SYSDEBUG){
+            $this->sql_array['err_sql'][] = $sql;
+        }
+        $eno = $this->_connection->errno;
+        $ems = $this->_connection->error;
+        $msg = 'query error [' . $eno . '] ' . $ems . (SYSDEBUG ? "[{$sql}]" : '' );
+        throw new Exception($msg,$eno);
     }
     
     /**
@@ -369,8 +362,8 @@ class db {
         }
 
 //        $this->connect();
-//        if (($value = mysql_real_escape_string((string) $value, $this->_connection)) === FALSE) {
-//            throw new Exception('[' . mysql_errno($this->_connection) . '] ' . mysql_error($this->_connection));
+//        if (($value = mysqli_real_escape_string((string) $value, $this->_connection)) === FALSE) {
+//            throw new Exception('[' . mysqli_errno($this->_connection) . '] ' . mysqli_error($this->_connection));
 //        }
 //        return "'$value'";
     }
