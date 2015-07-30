@@ -41,7 +41,8 @@ final class log {
     static function ilog($msg='') {
         $db = db::i(); //select|insert|update|replace|delete|truncate
         $msg && ($msg .= ';');
-        $ilog = round((microtime(TRUE) - SYS_START_TIME), 3)
+        $ilog = req::clinet_ip()
+                . ',' . round((microtime(TRUE) - SYS_START_TIME), 3)
                 . ',' . (memory_get_peak_usage() - SYS_START_MEMORY)
                 . ',' . intval(util::arr($db->sql_array, 'insert', 0) + util::arr($db->sql_array, 'replace', 0))
                 . ',' . intval(util::arr($db->sql_array, 'delete', 0) + util::arr($db->sql_array, 'truncate', 0))

@@ -22,6 +22,14 @@ abstract class bean {
     private $err_msg = NULL;       //错误信息，当执行出现错误的时候，这里将储存出错信息
     
     
+    protected function set_db_data(array $params){
+        $this->db_data = $params;
+    }
+    
+    protected function set_data(array $params){
+        $this->data = $params;
+    }
+    
     public function err_msg($m=NULL){
         if($m===NULL){
             return $this->err_msg;
