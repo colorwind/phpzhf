@@ -286,7 +286,9 @@ class db {
                     return $data;
                 case 'insert':
                     $this->affected_rows = $this->_connection->affected_rows;
-                    return $this->_connection->insert_id;
+                    $_ = $this->_connection->insert_id;
+                    $_ = $_ ? $_ : $this->affected_rows > 0 ;
+                    return $_;
                 default :
                     return ($this->affected_rows = $this->_connection->affected_rows);
             }

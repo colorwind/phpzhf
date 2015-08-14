@@ -9,6 +9,28 @@ class sys {
 
     static $config;
 
+    /**
+     * 创建上传目录
+     * @param string $path
+     * @return string
+     */
+    public static function mkdir_up($path) {
+        $_ = explode('/', $path);
+        foreach($_ as $k => &$v){
+            $v = preg_replace("/\W/","", $v);
+            if(!$v){
+                unset($_[$k]);
+            }
+        }
+        $path = implode('/', $_);
+        $path = UPLOADPATH."/$path";
+        if(!is_dir($path)){
+            mkdir($path, 0777, true);
+        }
+        return $path;
+    }
+
+
     public static function find_file($path) {
         $p = array(APPPATH, SYSPATH);
         foreach ($p as $v) {
@@ -46,15 +68,15 @@ class sys {
 
     public static function exception_handler(Exception $e) {
         
-        $time = "Time:".self::date_time().";";
+        $time = self::date_time().",";
         $err = $time . $e->getMessage()."\r\n" .$e->getTraceAsString();
         if(SYSDEBUG){
             $msg = $err;
         } else {
-            $msg = sprintf('Err[%s];%s,%s',$e->getCode(), self::date_time(),$e->getMessage());
+            $msg = sprintf('Err[%s],%s',$e->getCode(), $e->getMessage());
         }
         if(self::is_ajax()){
-            echo json_encode(array('st'=>0,'msg'=>$msg));
+            echo json_encode(array('st'=>0,'msg'=>$msg,'err'=>$e->getCode()));
         } else {
             echo "<pre>".$msg;
         }

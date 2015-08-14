@@ -11,11 +11,8 @@ final class log {
     private static function getLogFile($filename="",$logtype="logs"){
         $filename = preg_replace("/\W/","", $filename);
         $logtype = preg_replace("/\W/","" ,$logtype);
-        $path = UPLOADPATH."/$logtype/". date("Ym");
+        $path = sys::mkdir_up("$logtype/" . date("Ym"));
         $fn = $path."/".$filename . date('Ymd').".log";
-        if(!is_dir($path)){
-            mkdir($path, 0777, true);
-        }
         return $fn;
     }
     
