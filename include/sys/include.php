@@ -31,6 +31,11 @@ if (!defined('HTTPDUSER')) {
     define('HTTPDUSER', "nobody");
 }
 
+//设置是否开启session 默认开启
+if(!defined('SESSION_START') || SESSION_START){
+    session_start();
+}
+
 
 /*
  * ********************************
@@ -48,8 +53,6 @@ if (!$_GET && !$_POST && isset($argv) && $argv[1]) {
     $_SERVER['HTTP_X_FORWARDED_FOR'] = '127.0.0.1';
     parse_str($argv[1], $_GET);
 }
-
-session_start();
 
 if (SYSDEBUG) {
     version_compare(PHP_VERSION, '5.3.0', '>=') || exit("Requires PHP 5.3.0 or newer, this version is " . PHP_VERSION);
