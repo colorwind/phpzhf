@@ -57,7 +57,9 @@ class m_cache_mem extends mc {
         $this->connect();
         if ($this->_connection) {
             //connect has set default exptime
-            $ttl === NULL || ($ttl = (int)$this->_config['exptime']);
+            ($ttl=(int)$ttl) || 
+            ($ttl = (int)$this->_config['exptime']) || 
+            ($ttl = 900);
             return $this->_connection->set($key, $value, 0, $ttl);
         }
     }
