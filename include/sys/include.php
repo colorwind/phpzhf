@@ -21,21 +21,34 @@ if (!defined('APP_DIR_NAME')) {
     define('APP_DIR_NAME', 'app');
 }
 
-//配置app上传,和log目录,如果不配置目录默认规则，替换开头的app为upload，例如app_zq2替换为upload_zq2（可覆盖）
-if (!defined('UPLOADPATH')) {
-    define('UPLOADPATH', 'upload' . substr(APP_DIR_NAME, 3));
-}
-
 //设置httpd，执行用户名
 if (!defined('HTTPDUSER')) {
     define('HTTPDUSER', "nobody");
 }
 
-//设置是否开启session 默认开启
-if(!defined('SESSION_START') || SESSION_START){
-    session_start();
+//设置默认系统字符集
+if (!defined('SYSCHARSET')) {
+    define('SYSCHARSET', 'UTF-8');
 }
 
+//配置app上传,和log目录,如果不配置目录默认规则，替换开头的app为upload，例如app_zq2替换为upload_zq2（可覆盖）
+if (!defined('UPLOADPATH')) {
+    define('UPLOADPATH', 'upload' . substr(APP_DIR_NAME, 3));
+}
+
+//设置系统目录
+if (!defined('SYSPATH')) {
+    define('SYSPATH', realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR);
+}
+
+//生产系统相关参数
+if (!defined('INCPATH')) {
+    define('INCPATH', realpath('include') . DIRECTORY_SEPARATOR);
+}
+
+if (!defined('APPPATH')) {
+    define('APPPATH', INCPATH . APP_DIR_NAME . DIRECTORY_SEPARATOR);
+}
 
 /*
  * ********************************
@@ -45,13 +58,16 @@ if(!defined('SESSION_START') || SESSION_START){
  * ********************************
  */
 
-//设置系统目录
-define('SYSPATH', realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR);
 
 //系统执行时的参数处理
 if (!$_GET && !$_POST && isset($argv) && $argv[1]) {
     $_SERVER['HTTP_X_FORWARDED_FOR'] = '127.0.0.1';
     parse_str($argv[1], $_GET);
+    $_POST = $_REQUEST = $_GET;
+}
+
+if(!defined('SESSION_START') || SESSION_START){
+    session_start();
 }
 
 if (SYSDEBUG) {
@@ -61,8 +77,7 @@ if (SYSDEBUG) {
     error_reporting(E_COMPILE_ERROR | E_ERROR | E_CORE_ERROR | E_PARSE);  //production
 }
 
-//设置默认系统字符集
-define('SYSCHARSET', 'UTF-8');
+
 //记录系统内存占用
 define('SYS_START_MEMORY', memory_get_usage());
 //记录开始时间
@@ -72,9 +87,6 @@ date_default_timezone_set('Asia/Shanghai');
 //设置返回头文件字符集
 header('Content-type: text/html; charset=' . SYSCHARSET);
 
-//生产系统相关参数
-define('INCPATH', realpath(SYSPATH . '..') . DIRECTORY_SEPARATOR);
-define('APPPATH', INCPATH . APP_DIR_NAME . DIRECTORY_SEPARATOR);
 
 //加载框架基础类
 require SYSPATH . 'class/sys.php';
